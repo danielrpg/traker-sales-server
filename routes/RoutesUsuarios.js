@@ -17,7 +17,6 @@ module.exports = function(app){
 				res.send({complet:true});
 				console.log('Usuario en el sistema');
 			}else{
-				
 				res.send({complet:false});
 				console.log(err);
 			}
