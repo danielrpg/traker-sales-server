@@ -1,8 +1,29 @@
 // App routes
-module.exports = function(app){
+module.exports = function(app, serverSocket){
 	var Operador = require('../models/Operador'); // Este es el model de este objeto
-
-
+    var listaOp = [];
+    serverSocket.sockets.on('connection', function (socket) {
+		socket.on('nuevoUsuario', function(data, callback){
+			if(listaOp.indexOf(data.login) != -1){
+				callback(false);
+			}else{
+				callback(true);
+				listaOp.push(data.login);
+				socket.login = data.login;
+				console.log('Un nuevo oprador se conecto: '+listaOp+' <<<<<<<<<<<<<<<<<<< ');	
+			}
+		});
+		socket.on('compartirPoscion', function(data){
+			serverSocket.sockets.emit('compartirPoscion', {lat:data.lat, lon:data.lon, cod_op:data.cod_op, login:socket.login});
+		});
+		socket.on('disconnect', function(){
+			if(!socket.login) return;
+			if(listaOp.indexOf(socket.login) > -1){
+				listaOp.splice(listaOp.indexOf(socket.login), 1);
+			}
+			console.log('Los operadores conectados son: '+listaOp+' <<<<<<<<<<<<<<<<<<< ');
+		});
+	});
     randomString = function() {
 		var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
 		var string_length = 8;
@@ -30,7 +51,7 @@ module.exports = function(app){
 	// Encontrar una persona en especifico por id
 	buscarXId = function(req, res){
 		Operador.findOne({_id:req.params.id}, function(error, operador){
-			console.dir(operador);
+			//console.dir(operador);
 			res.send(operador);
 		})
 	};
@@ -47,10 +68,10 @@ module.exports = function(app){
 			operador.save(function(err){
 				if(!err){
 					res.send({complet:true});
-					console.log('Persona Actualizada');
+					//console.log('Persona Actualizada');
 				}else{
 					res.send({complet:false});
-					console.log(err);
+					//console.log(err);
 				}
 			})
 		})
@@ -70,9 +91,16 @@ module.exports = function(app){
 		res.header('Access-Control-Allow-Origin', "*");     // TODO - Make this more secure!!
         res.header('Access-Control-Allow-Methods', 'GET,PUT,POST, DELETE');
         res.header('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept');
+       /* serverSocket.sockets.on('connection', function (socket) {
+			socket.on('nuevoUsuario', function(data){
+				console.dir(data);
+				console.log('Esta es una prueba');
+			});
+		});*/
         Operador.findOne({usuario:req.params.log,password:req.params.pass},function(err, operador){
-        	console.dir(operador.codigo_operador);
+        	//console.dir(operador.codigo_operador);
 			if(!err){
+				//console.log(serverSocket.sockets);
 				res.send({complet:true,codigo_operador:operador.codigo_operador});
 				console.log('Usuario en el sistema');
 			}else{

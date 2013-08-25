@@ -17,10 +17,16 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+var server = http.createServer(app).listen(app.get('port'), function(){
+  console.log('RUNING SERVER ON ' + app.get('port'));
+});
+// Estas io listen al server :D
+var serverSocket = io.listen(server);
+
 // Esta es la routes de usuario
 routesUsuario = require('./routes/RoutesUsuarios')(app);
 // Este es el operador
-routesOperador = require('./routes/RoutesOperador')(app);
+routesOperador = require('./routes/RoutesOperador')(app, serverSocket);
 // Esta es la ruta
 routesRuta = require('./routes/RoutesRutaOperador')(app);
 // Esta es el detalle de detalle de operador 
@@ -28,8 +34,10 @@ routesDetalle = require('./routes/RoutesDetalleOperador')(app);
 //connectar a la base de datos MongoDB 
 mongoose.connect('mongodb://localhost/trakerSalesDataBasev1');
 
-var server = http.createServer(app).listen(app.get('port'), function(){
-  console.log('RUNING SERVER ON ' + app.get('port'));
-});
-// Estas io listen al server :D
-io.listen(server);
+/*server_socket.sockets.on('connection', function (socket) {
+	socket.on('nuevoUsuario', function(data){
+		console.dir(data);
+	});
+});*/
+
+
