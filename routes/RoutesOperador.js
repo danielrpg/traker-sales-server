@@ -8,9 +8,13 @@ module.exports = function(app, serverSocket){
 				callback(false);
 			}else{
 				callback(true);
-				listaOp.push(data.login);
 				socket.login = data.login;
-				console.log('Un nuevo oprador se conecto: '+listaOp+' <<<<<<<<<<<<<<<<<<< ');	
+				socket.codigo_op = data.codigo_op
+				socket.latitude = data.latitude;
+				socket.longitude = data.longitude;
+				listaOp.push(data.login);
+				serverSocket.sockets.emit('newUserConnected', {login:socket.login,codigo_op:socket.codigo_op, latitude:socket.latitude, longitude:socket.longitude});
+				console.log('Los operadores conectados: '+listaOp+' <<<<<<<<<<<<<<<<<<< ');	
 			}
 		});
 		socket.on('compartirPoscion', function(data){
@@ -21,6 +25,7 @@ module.exports = function(app, serverSocket){
 			if(listaOp.indexOf(socket.login) > -1){
 				listaOp.splice(listaOp.indexOf(socket.login), 1);
 			}
+			serverSocket.sockets.emit('userDisconnected',{login:socket.login, codigo_op:socket.codigo_op});
 			console.log('Los operadores conectados son: '+listaOp+' <<<<<<<<<<<<<<<<<<< ');
 		});
 	});
@@ -37,8 +42,8 @@ module.exports = function(app, serverSocket){
 
 	// Crear una nueva persona y gurdar esta
 	operador = function(req, res){
-		var codigo_op = 'CODIGO_OP_'+randomString();
-		var operador = new Operador({nombre:req.body.nombre, apellido:req.body.apellido,email:req.body.email,usuario:req.body.usuario,password:req.body.password, direccion:req.body.direccion,celular:req.body.celular, codigo_operador:codigo_op});
+		var codigo_op = 'CODIGO_OP_'+randomString(); // me crea un codigo de operador unico
+		var operador = new Operador({nombre:req.body.nombre, apellido:req.body.apellido,email:req.body.email,usuario:req.body.usuario,password:req.body.password, direccion:req.body.direccion,celular:req.body.celular, codigo_operador:codigo_op}); // crea un objeto operador
 		operador.save();
 		res.end();
 	};

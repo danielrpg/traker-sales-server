@@ -8,7 +8,7 @@ module.exports = function(app){
         res.header('Access-Control-Allow-Methods', 'GET,PUT,POST, DELETE');
         res.header('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept');
 		RutaOperador.findOne({codigo_operador:req.body.codigo_operador}, function(err,ruta){
-			console.dir(ruta.codigo_ruta);
+			console.dir(ruta);
 			var operadorDetalle = new OperadorDetalle({codigo_operador:req.body.codigo_operador,latitud:req.body.latitude,longitud:req.body.longitude,codigo_ruta:ruta.codigo_ruta});
 			operadorDetalle.save();
 			res.send();

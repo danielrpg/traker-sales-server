@@ -17,16 +17,21 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+app.get('/', function(req, res){
+	res.send('<h1>Por favor llame 65755850 para implentacion de un servicio @chalasoft</h1>');
+});
+
 var server = http.createServer(app).listen(app.get('port'), function(){
   console.log('RUNING SERVER ON ' + app.get('port'));
 });
 // Estas io listen al server :D
-var serverSocket = io.listen(server);
+var serverSocket = io.listen(server); // activa el socket con la aplicacion
+//console.dir(serverSocket);
 
 // Esta es la routes de usuario
 routesUsuario = require('./routes/RoutesUsuarios')(app);
 // Este es el operador
-routesOperador = require('./routes/RoutesOperador')(app, serverSocket);
+routesOperador = require('./routes/RoutesOperador')(app, serverSocket); // este es el modulo operador
 // Esta es la ruta
 routesRuta = require('./routes/RoutesRutaOperador')(app);
 // Esta es el detalle de detalle de operador 
